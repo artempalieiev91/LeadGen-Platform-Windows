@@ -1,0 +1,12 @@
+{
+  "name": "name2email-platform-runner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Puppeteer+CDP runner for LeadGen platform (same idea as Name2Email-PythonMixed-Windows)",
+  "main": "name2email_platform.cjs",
+  "dependencies": {
+    "csv-parse": "^5.5.6",
+    "csv-stringify": "^6.4.5",
+    "puppeteer-core": "^24.40.0"
+  }
+}
