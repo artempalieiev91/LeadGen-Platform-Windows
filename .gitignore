@@ -15,3 +15,4 @@ scratch_user_companies.*
 *.egg-info/
 dist/
 build/
+Output_With_Emails.csv

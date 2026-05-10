@@ -124,9 +124,9 @@ def render_name2emails() -> None:
 
     if not name2emails_supported_platform():
         st.warning(
-            "Цей блок працює лише коли Streamlit запущено **на вашому Mac** (`streamlit run` локально): "
+            "Цей блок працює лише коли Streamlit запущено **локально на вашому ПК** (macOS або Windows, `streamlit run`): "
             "потрібні Chrome, Gmail і Name2Email. На типовому хмарному хостингу (Linux, зокрема Streamlit Cloud) "
-            "Python виконується на сервері, а не на вашому ПК — тому тут немає сенсу в завантаженні файлу й "
+            "Python виконується на сервері, а не на вашому комп’ютері — тому тут немає сенсу в завантаженні файлу й "
             "кнопці «Старт» для цього сценарію."
         )
         return

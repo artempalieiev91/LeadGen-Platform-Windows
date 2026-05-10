@@ -13,7 +13,8 @@ if str(_VENDOR) not in sys.path:
 
 
 def name2emails_supported_platform() -> bool:
-    return sys.platform == "darwin"
+    """Локальний режим із Chrome/CDP підтримується на macOS і Windows (не на типовому Linux-хостингу)."""
+    return sys.platform in ("darwin", "win32")
 
 
 def run_name2email_client(
@@ -35,8 +36,8 @@ def run_name2email_client(
 
     if not name2emails_supported_platform():
         raise RuntimeError(
-            "Автозапуск Chrome з репозиторію розрахований на macOS. "
-            "Запускайте цю вкладку локально на Mac з установленим Google Chrome."
+            "Автозапуск Chrome з репозиторію розрахований на macOS або Windows з локально встановленим Google Chrome. "
+            "На хмарному Linux Python працює на сервері, а не на вашому ПК — CDP недоступний."
         )
 
     log = io.StringIO()

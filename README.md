@@ -1,6 +1,6 @@
 # LeadGen Platform
 
-Streamlit-застосунок: Research Validation, Sheets Preparation, Name2Emails (локально на macOS). Логіка MathcURLs (перевірка Website ↔ домен email) вбудована в **Sheets Preparation**, крок 3.
+Streamlit-застосунок: Research Validation, Sheets Preparation, Name2Emails (локально на macOS або Windows). Логіка MathcURLs (перевірка Website ↔ домен email) вбудована в **Sheets Preparation**, крок 3.
 
 ## Швидкий старт (термінал)
 
@@ -38,4 +38,4 @@ streamlit run streamlit_app.py
 
 ## Name2Emails
 
-Працює лише на **macOS** з локальним Chrome; на типовому хмарному Linux-хостингу вкладка свідомо обмежена.
+Працює лише **локально на macOS або Windows** з Google Chrome (Gmail + розширення Name2Email); на типовому хмарному Linux-хостингу вкладка свідомо обмежена.

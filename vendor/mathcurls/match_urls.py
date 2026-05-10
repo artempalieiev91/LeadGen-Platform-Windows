@@ -8,7 +8,7 @@ Match URL pairs from input.csv: HTTP redirects (requests), then browser redirect
 
 Опційно:  python3 match_urls.py --input my.csv   або   python3 match_urls.py --limit 50
 
-Перед першим запуском (macOS):
+Перед першим запуском (macOS або Windows):
   python3 -m pip install -r requirements.txt
   python3 -m playwright install chromium
 """
@@ -41,24 +41,30 @@ OUTPUT_FILE = "output.csv"
 TMP_FILE = "puppeteer_needed.tmp.csv"
 
 
-def _chrome_user_agent_macos() -> str:
-    """User-Agent як у Chrome на macOS (Intel або Apple Silicon)."""
-    if platform.system() != "Darwin":
+def _chrome_user_agent_for_platform() -> str:
+    """User-Agent близький до Chrome на поточній ОС (запити та Playwright)."""
+    system = platform.system()
+    if system == "Darwin":
+        rel = platform.mac_ver()[0] or "10.15.7"
+        mac_ver = rel.replace(".", "_")
+        arch = "arm64" if platform.machine() == "arm64" else "Intel"
         return (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+            f"Mozilla/5.0 (Macintosh; {arch} Mac OS X {mac_ver}) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
+    if system == "Windows":
+        return (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
             "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         )
-    rel = platform.mac_ver()[0] or "10.15.7"
-    mac_ver = rel.replace(".", "_")
-    arch = "arm64" if platform.machine() == "arm64" else "Intel"
     return (
-        f"Mozilla/5.0 (Macintosh; {arch} Mac OS X {mac_ver}) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     )
 
 
-USER_AGENT_HTTP = _chrome_user_agent_macos()
-USER_AGENT_BROWSER = _chrome_user_agent_macos()
+USER_AGENT_HTTP = _chrome_user_agent_for_platform()
+USER_AGENT_BROWSER = _chrome_user_agent_for_platform()
 
 
 def normalize_url(raw_url: str) -> str:

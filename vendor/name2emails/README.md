@@ -4,11 +4,21 @@
 
 ## 1) Підготовка
 
-1. Запустіть Chrome з портом відладки:
+1. Запустіть Chrome з портом відладки.
+
+**macOS**
 
 ```bash
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
 ```
+
+**Windows** (CMD; у PowerShell: `& "$env:PROGRAMFILES\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222`)
+
+```bat
+"%ProgramFiles%\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
+```
+
+Якщо Chrome встановлений інакше — вкажіть свій шлях. Автозапуск у скрипті шукає `chrome.exe` у Program Files / Program Files (x86) та `%LOCALAPPDATA%\Google\Chrome\Application`, або використовує змінну **`CHROME_PATH`** / **`GOOGLE_CHROME_BIN`**.
 
 2. Увійдіть у Gmail у цьому ж Chrome і переконайтесь, що розширення Name2Email активне.
 

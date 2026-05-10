@@ -5,6 +5,7 @@ import math
 import os
 import random
 import re
+import shutil
 import signal
 import socket
 import subprocess
@@ -155,6 +156,58 @@ DEBUG_PORT = 9222
 CHROME_CDP_WAIT_SECONDS = 20.0
 CHROME_DEBUG_PROFILE = Path.home() / "chrome-debug-name2email"
 CHROME_PATH_MAC = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+
+def _resolve_google_chrome_executable() -> Path:
+    """Шлях до chrome / Google Chrome для автозапуску з флагами remote-debugging-port."""
+    for key in ("CHROME_PATH", "GOOGLE_CHROME_BIN"):
+        raw = (os.environ.get(key) or "").strip()
+        if raw:
+            p = Path(raw).expanduser()
+            if p.is_file():
+                return p
+            raise FileNotFoundError(
+                f"Змінна оточення {key} задана, але файлу браузера не знайдено: {p}"
+            )
+
+    if sys.platform == "darwin":
+        p = Path(CHROME_PATH_MAC)
+        if p.is_file():
+            return p
+        raise FileNotFoundError(
+            "Google Chrome не знайдено за типовим шляхом macOS. "
+            "Встановіть Chrome або задайте змінну CHROME_PATH (або GOOGLE_CHROME_BIN)."
+        )
+
+    if sys.platform == "win32":
+        program_files = os.environ.get("ProgramFiles", r"C:\Program Files")
+        program_files_x86 = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
+        localappdata = os.environ.get("LOCALAPPDATA", "")
+        candidates = [
+            Path(program_files) / "Google" / "Chrome" / "Application" / "chrome.exe",
+            Path(program_files_x86) / "Google" / "Chrome" / "Application" / "chrome.exe",
+        ]
+        if localappdata:
+            candidates.append(Path(localappdata) / "Google" / "Chrome" / "Application" / "chrome.exe")
+        for c in candidates:
+            if c.is_file():
+                return c
+        raise FileNotFoundError(
+            "Google Chrome не знайдено типовими шляхами Windows "
+            "(Program Files / Local AppData\\Google\\Chrome\\Application\\chrome.exe). "
+            "Встановіть Chrome або задайте CHROME_PATH."
+        )
+
+    for name in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser"):
+        which = shutil.which(name)
+        if which:
+            return Path(which)
+    raise FileNotFoundError(
+        "Google Chrome не знайдено в PATH і не заданий CHROME_PATH. "
+        f"Ця платформа ({sys.platform}) не налаштовується типовими шляхами."
+    )
+
+
 MAX_CLEAR_BACKSPACES = 30
 EMAIL_REGEX = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
@@ -286,12 +339,10 @@ class Name2EmailClient:
         if self._is_cdp_ready():
             return
 
-        chrome_path = Path(CHROME_PATH_MAC)
-        if not chrome_path.exists():
-            raise RuntimeError(
-                "Google Chrome is not found at default macOS path. "
-                "Install Chrome or update CHROME_PATH_MAC in script."
-            )
+        try:
+            chrome_path = _resolve_google_chrome_executable()
+        except FileNotFoundError as exc:
+            raise RuntimeError(str(exc)) from exc
 
         self.chrome_profile_dir.mkdir(parents=True, exist_ok=True)
         command = [
@@ -499,8 +550,8 @@ class Name2EmailClient:
 
     def _clear_to_input(self, page: Page, to_input, compose_dialog) -> None:
         to_input.click()
-        # Use cross-platform shortcut; Control+A is unreliable on macOS.
-        page.keyboard.press("Meta+A")
+        # macOS: Meta+A; Windows/Linux: Control+A (Control+A на macOS у Chrome ненадійний).
+        page.keyboard.press("Meta+A" if sys.platform == "darwin" else "Control+A")
         page.keyboard.press("Backspace")
         page.keyboard.press("Delete")
         page.wait_for_timeout(100)
